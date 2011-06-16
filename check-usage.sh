@@ -96,7 +96,7 @@ then echo "No results found! Try your search again."
 fi
 
 # Run the command for real!
-du --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh | grep $pattern | head -n $list
+du --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh | grep $pattern | head -n $list | nl -w 2 -s ':  '
 
 echo
 
