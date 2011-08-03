@@ -8,14 +8,15 @@ list="10"
 defaultlist=1
 pattern="G"
 defaultpattern=1
-
+onefilesystem=0
+fs=""
 debug=0
 
 displayhelp ()
 {
-    echo "Usage: check-usage.sh [-s <Start directory>] [-d <Depth>] [-n <# to list>] [-p <File pattern>]"
-    echo "       check-usage.sh -v  (Displays version and exits)"
-    echo "       check-usage.sh -h  (Shows this message)"
+	echo "Usage: check-usage.sh [-s <Start directory>] [-d <Depth>] [-n <# to list>] [-p <File pattern>] [-x (One file system)]"
+	echo "       check-usage.sh -v  (Displays version and exits)"
+	echo "       check-usage.sh -h  (Shows this message)"
 }
 
 displayversion ()
@@ -25,34 +26,37 @@ displayversion ()
     echo "  If you have any improvements, please let me know!"
 }
 
-while getopts ":s:d:n:p:hv" option; do
-    case $option in
-        s)  directory=$OPTARG
-            defaultdirectory=0
-            ;;
-        d)  folderdepth=$OPTARG
-            defaultfolderdepth=0
-            ;;
-        n)  list=$OPTARG
-            defaultlist=0
-            ;;
-        p)  pattern=$OPTARG
-            defaultpattern=0
-            ;;
-        h)  displayhelp
-            exit 1
-            ;;
-        v)  displayversion
-            exit 1
-            ;;
-        \?) echo "Invalid option: -$OPTARG" >&2
-            displayhelp
-            exit 1
-            ;;
-        :)  echo "Option -$OPTARG requires an argument." >&2
-            exit 1
-            ;;
-    esac
+while getopts ":s:d:n:p:xvh" option; do
+         case $option in
+                 s)	directory=$OPTARG
+			defaultdirectory=0
+			;;
+                 d)	folderdepth=$OPTARG
+			defaultfolderdepth=0
+			;;
+                 n)	list=$OPTARG
+			defaultlist=0
+			;;
+                 p)	pattern=$OPTARG
+			defaultpattern=0
+			;;
+                 h)	displayhelp
+			exit 1
+			;;
+                 v)	displayversion
+			exit 1
+			;;
+                 x) onefilesystem=1
+      fs="-x"
+      ;;
+                 \?)	echo "Invalid option: -$OPTARG" >&2
+			displayhelp
+			exit 1
+			;;
+                 :) echo "Option -$OPTARG requires an argument." >&2
+			exit 1
+			;;
+         esac
 done
 
 if [ $# == 0 ]; then
@@ -80,12 +84,16 @@ if [[ defaultpattern -eq 1 ]]
     else echo "Listing directories matching '$pattern'"
 fi
 
+if [[ onefilesystem -eq 1 ]]
+then echo "Restricting search to a single file-system"
+fi
+
 if [[ debug -eq 1 ]]
-    then echo "du --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh | grep $pattern | head -n $list"
+then echo "du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list"
 fi
 
 #figure out how many lines we're gonna have
-linesfound=$(du --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh | grep $pattern | head -n $list | wc -l)
+linesfound=$(du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list | wc -l)
 
 if [[ $linesfound -eq 0 ]]
 then echo "No results found! Try your search again."
@@ -96,7 +104,7 @@ then echo "No results found! Try your search again."
 fi
 
 # Run the command for real!
-du --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh | grep $pattern | head -n $list | nl -w 2 -s ':  '
+du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list | nl -w 2 -s ':  '
 
 echo
 
@@ -120,7 +128,7 @@ while [ $detail -gt $linesfound ]; do
 done
 detail=$detail'p'
 
-folderdetail=$(du --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh | grep $pattern | head -n $list | sed -n $detail | cut -f 2)
+folderdetail=$(du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list | sed -n $detail | cut -f 2)
 
 echo
 echo $folderdetail
