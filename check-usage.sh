@@ -14,9 +14,9 @@ debug=0
 
 displayhelp ()
 {
-	echo "Usage: check-usage.sh [-s <Start directory>] [-d <Depth>] [-n <# to list>] [-p <File pattern>] [-x (One file system)]"
-	echo "       check-usage.sh -v  (Displays version and exits)"
-	echo "       check-usage.sh -h  (Shows this message)"
+    echo "Usage: check-usage.sh [-s <Start directory>] [-d <Depth>] [-n <# to list>] [-p <File pattern>] [-x (One file system)]"
+    echo "       check-usage.sh -v  (Displays version and exits)"
+    echo "       check-usage.sh -h  (Shows this message)"
 }
 
 displayversion ()
@@ -47,8 +47,8 @@ while getopts ":s:d:n:p:xvh" option; do
 			exit 1
 			;;
                  x) onefilesystem=1
-      fs="-x"
-      ;;
+                        fs="-x"
+                        ;;
                  \?)	echo "Invalid option: -$OPTARG" >&2
 			displayhelp
 			exit 1
@@ -85,11 +85,11 @@ if [[ defaultpattern -eq 1 ]]
 fi
 
 if [[ onefilesystem -eq 1 ]]
-then echo "Restricting search to a single file-system"
+    then echo "Restricting search to a single file-system"
 fi
 
 if [[ debug -eq 1 ]]
-then echo "du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list"
+    then echo "du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list"
 fi
 
 #figure out how many lines we're gonna have
