@@ -92,8 +92,11 @@ if [[ debug -eq 1 ]]
     then echo "du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list"
 fi
 
-#figure out how many lines we're gonna have
-linesfound=$(du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list | wc -l)
+# Run the command
+commandoutput=$(du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list | nl -w 2 -s ':  ')
+
+# Figure out how many lines we've got
+linesfound=$(echo -e "$commandoutput" | wc -l)
 
 if [[ $linesfound -eq 0 ]]
 then echo "No results found! Try your search again."
@@ -103,10 +106,7 @@ then echo "No results found! Try your search again."
     exit 1
 fi
 
-# Run the command for real!
-du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list | nl -w 2 -s ':  '
-
-echo
+echo -e "$commandoutput\n"
 
 echo -n "Would you like to look at one of these folders(y/n)? "
 
@@ -128,9 +128,9 @@ while [ $detail -gt $linesfound ]; do
 done
 detail=$detail'p'
 
-folderdetail=$(du $fs --max-depth=$folderdepth -k $directory | sort -nr | cut -f2 | xargs -d '\n' du -sh $fs | grep $pattern | head -n $list | sed -n $detail | cut -f 2)
+# Grab just the folder we want to look at
+folderdetail=$(echo -e "$commandoutput" | sed -n $detail | cut -f 2)
 
-echo
-echo $folderdetail
+echo -e "\n$folderdetail\n"
 
 ls -lah $folderdetail
