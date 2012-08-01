@@ -133,4 +133,4 @@ folderdetail=$(echo -e "$commandoutput" | sed -n $detail | cut -f 2)
 
 echo -e "\n$folderdetail\n"
 
-ls -lah $folderdetail
+ls --color -FAShs $folderdetail
